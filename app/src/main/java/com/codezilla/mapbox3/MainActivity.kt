@@ -125,26 +125,7 @@ class MainActivity : AppCompatActivity() {
             if(Switch==1) //1 Means a thread is in process
             {true}
             Switch=1
-//            mapboxMap!!.apply { loadStyleUri(
-//                styleUri = Style.MAPBOX_STREETS
-//            ) { style -> addRuntimeLayers(style) }
-//                setMapProjection(MapProjection.Globe)
-//            }
-//                    mapboxMap!!.setCamera(
-//                        CameraOptions.Builder()
-//                            .center(Point.fromLngLat(77.1888,28.6550))
-//                            .zoom(1.0)
-//                            .build()
-//                    )
 
-
-//            setup3DBuildings2()
-//                    Uri(Style.OUTDOORS){style->
-//                      setup3DBuildings()
-//                    }
-//                    polyLine()
-//            queue?.enqueue(point)
-//            Toast.makeText(this, "QUEUE FULL!! (Delete Some) ${queue!!.list.size}", Toast.LENGTH_SHORT).show()
             if(queue!!.getSize()==queue!!.list.size)
             {
                 Toast.makeText(this, "QUEUE FULL!! (Delete Some)", Toast.LENGTH_SHORT).show()
@@ -160,76 +141,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-//    fun changeline() {
-//        initiateCamera()
-//        mapView?.getMapboxMap()?.getStyle {
-//            // Create a list to store our line coordinates.
-//            val routeCoordinates = ArrayList<Point>()
-//            routeCoordinates.add(Point.fromLngLat(-122.4106, 37.7676))
-//            routeCoordinates.add(Point.fromLngLat(-122.4192, 37.7000))
-//
-//            // Create the LineString from the list of coordinates and then make a GeoJSON FeatureCollection so that you can add the line to our map as a layer.
-//
-//            val lineString = LineString.fromLngLats(routeCoordinates)
-//
-//            val feature = Feature.fromGeometry(lineString)
-//
-//            val geoJsonSource = GeoJsonSource(GeoJsonSource.Builder(JSON_SOURCE_ID))
-//            geoJsonSource.feature(feature)
-//            it.addSource(geoJsonSource)
-//        }
-//        var clr:String="#0f0"
-//        mapView?.getMapboxMap()?.getStyle {
-////                    style(styleUri = Style.MAPBOX_STREETS) {
-//            it.addLayer(   lineLayer("linelayer", JSON_SOURCE_ID) {
-//                lineCap(LineCap.ROUND)
-//                lineJoin(LineJoin.ROUND)
-//                lineOpacity(0.7)
-//                lineWidth(8.0)
-//                lineColor(clr)
-//
-//            }
-////                  }
-//            )
-//        }
-//
-//    }
 
-    //ON LAYER BUTTON CLICK
-//    val MAIN_KEY:String="selected_style"
-//    public fun onActionbtnclick(view:View)
-//    {
-//        val intent:Intent = Intent(this@MainActivity,StyleSelect::class.java)
-//        startActivity(intent)
-//        finish()
-//        val shpf = getSharedPreferences(MAIN_KEY, MODE_PRIVATE)
-//        val value=shpf.getInt("style",2)
-//        if(value==1)
-//        {
-//            mapView?.getMapboxMap()?.apply {
-//                loadStyleUri(styleUri = Style.DARK){
-//                }
-////               { style -> addRuntimeLayers(style) }
-////                setMapProjection(MapProjection.Globe)
-//            }
-//        }
-//        else if(value==2)
-//        {
-//            mapView?.getMapboxMap()?.apply {
-//                loadStyleUri(styleUri = Style.MAPBOX_STREETS)
-////               { style -> addRuntimeLayers(style) }
-////                setMapProjection(MapProjection.Globe)
-//            }
-//        }
-//
-//    }
     //ON LAYER BUTTON CLICK
     public fun onActionbtnclick2(view:View)
     {
-//        queue =CircularQueue( qsize)
-//        lqueue = LineQueue(qsize-1)
-//        squeue= SrcQueue(qsize-1)
-
 
         if(Switch==1) return
         Switch=1
@@ -245,23 +160,7 @@ class MainActivity : AppCompatActivity() {
             }
         Switch=0
     }
-//    private fun setup3DBuildings2() {
-//        mapboxMap!!.apply { loadStyleUri(
-//                styleUri = Style.MAPBOX_STREETS
-//            ) { style ->
-//            var fillExtrusionLayer =  fillExtrusionLayer("3d-buildings", "composite") {
-//                fillExtrusionHeight(150.0)
-//                fillExtrusionBase(1.5)
-//                fillExtrusionOpacity(1.0)
-//                filter(eq(get("extrude"), literal("true")))
-//                minZoom(5.0)
-//                fillExtrusionColor(Color.parseColor("#ff03dac5"))
-//                sourceLayer("building")
-//            }
-//               style.addLayerBelow(fillExtrusionLayer,"linelayer")
-//           }
-//        }
-//    }
+
     private fun setup3DBuildings() {
         mapboxMap!!.loadStyle(
                 style (styleUri = if(value==1)

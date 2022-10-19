@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:id="@+id/layers">
+        <item android:id="@+id/htmap"
+            android:title="Layer:Heat Map">
+
+        </item>
+        <item android:id="@+id/Map3d"
+            android:title="Layer:3D Layer">
+        </item>
+        <item android:title="Layer:Line Layer"
+            android:id="@+id/lineMap"></item>
+
+    </group>
+    <group android:id="@+id/style">
+        <item android:id="@+id/dark"
+            android:title="Style:DARK">
+
+        </item>
+        <item android:id="@+id/street"
+            android:title="Style:STREET">
+        </item>
+        <item android:title="Style:TRAFFIC"
+            android:id="@+id/trf"></item>
+        <item android:title="Style:SATELLITE"
+            android:id="@+id/sati"></item>
+
+    </group>
+
+
+
+</menu>

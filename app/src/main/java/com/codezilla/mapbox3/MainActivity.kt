@@ -84,7 +84,7 @@ class MainActivity : AppCompatActivity() {
     public var lqueue:LineQueue?=null
     public var squeue:SrcQueue?=null
     var value:Int=2
-    var qsize:Int=15
+    var qsize:Int=20
     var lineEnabled=true
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -154,8 +154,8 @@ class MainActivity : AppCompatActivity() {
                 var ss:String=squeue!!.dequeue()
                 it.removeStyleLayer(sl)
                 it.removeStyleSource(ss)
-                Toast.makeText(this, "dqueue from line $sl", Toast.LENGTH_SHORT).show()
-                Toast.makeText(this, "dqueue from line $ss", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(this, "dqueue from line $sl", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(this, "dqueue from line $ss", Toast.LENGTH_SHORT).show()
                 queue!!.dequeue()
             }
         Switch=0
@@ -180,26 +180,8 @@ class MainActivity : AppCompatActivity() {
                 }
             )
     }
-    fun newone() {
-        mapView?.getMapboxMap()?.getStyle {
-//                    style(styleUri = Style.MAPBOX_STREETS) {
-            it.addLayer(fillExtrusionLayer("3d-buildings", "composite") {
-                fillExtrusionHeight(150.0)
-                fillExtrusionBase(1.5)
-                fillExtrusionOpacity(1.0)
-                filter(eq(get("extrude"), literal("true")))
-                minZoom(5.0)
-                fillExtrusionColor(Color.parseColor("#ff03dac5"))
-                sourceLayer("building")
-            }
-//                if(s==0){"3d-buildings"}else{lyrid[s-1]}
-            )
-        }
-    }
     var strnum=0
     var clr=arrayOf("70f","ff4","f18","999","00f","0f0","f00","70f","82c","0af","7fd","bc4","f50","c04","818","333","222")
-    val src= arrayOf("src0","src1","src2","src3","src4","src5","src6","src7","src8","src9","src10","src11","src12","src13","src14","src15","src16","src17" )
-    val lyrid= arrayOf("layer0","layer1","layer2","layer3","layer4","layer5","layer6","layer7","layer8","layer9","layer10","layer11","layer12","layer13","layer14","layer15","layer16","layer17")
     var s:Int=0
     var x=0
     fun addNewline(point1:Point) {
@@ -221,30 +203,18 @@ class MainActivity : AppCompatActivity() {
 
         var point2:Point= queue!!.getPoint(queue!!.tail)
 
-//        if(queue!!.tail==queue!!.head && queue!!.tail)
-//            point2=queue!!.getPoint(qsize-1)
-//        else
-//            point2=queue!!.getPoint(queue!!.tail-1)
         var lyr:String=strl
         var sor:String=strs
         mapView?.getMapboxMap()?.getStyle {
             // Create a list to store our line coordinates.
             val routeCoordinates = ArrayList<Point>()
-//            var ptr:Int=queue!!.head
-//            while(ptr != queue!!.tail)
-//            {
-//                ptr = ptr % qsize
-//                routeCoordinates.add(queue!!.getPoint(ptr))
-//                ptr++
-//            }
+
             lqueue!!.enqueue(strl)
             squeue!!.enqueue(strs)
             queue!!.enqueue(point1)
             routeCoordinates.add(point1)
             routeCoordinates.add( Point.fromLngLat(point2.longitude()-0.0001,point2.latitude()-0.0001))
-//                Point.fromLngLat(point2.longitude()-0.0001,point2.latitude()-0.0001))
-//            routeCoordinates.add(point2)
-            // Create the LineString from the list of coordinates and then make a GeoJSON FeatureCollection so that you can add the line to our map as a layer.
+
             sor=squeue!!.getPoint(squeue!!.tail)
             lyr=lqueue!!.getPoint(lqueue!!.tail)
 
@@ -270,7 +240,7 @@ class MainActivity : AppCompatActivity() {
             )
             x++
             s++
-            Toast.makeText(this, "Qsize ${queue!!.getSize()}", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(this, "Qsize ${queue!!.getSize()}", Toast.LENGTH_SHORT).show()
             Switch=0;
         }
 

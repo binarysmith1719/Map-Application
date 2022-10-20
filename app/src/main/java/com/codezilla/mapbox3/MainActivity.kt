@@ -815,6 +815,12 @@ class MainActivity : AppCompatActivity() {
     fun globe(view: View)
     {
         mapboxMap?.apply { setMapProjection(MapProjection.Globe)}
+        mapboxMap!!.setCamera(
+            CameraOptions.Builder()
+                .center(Point.fromLngLat(-122.4192,37.7627))
+                .zoom(1.0)
+                .build()
+        )
     }
 }
 

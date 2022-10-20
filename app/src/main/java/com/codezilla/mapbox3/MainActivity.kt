@@ -1,11 +1,11 @@
 package com.codezilla.mapbox3
 
 import android.app.AlertDialog
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.location.Location
 import android.os.Bundle
@@ -14,8 +14,10 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import com.google.gson.JsonElement
@@ -50,6 +52,7 @@ import com.mapbox.maps.plugin.gestures.gestures
 import com.mapbox.maps.viewannotation.ViewAnnotationManager
 import com.mapbox.maps.viewannotation.viewAnnotationOptions
 
+
 //import com.mapbox.maps.mapBox3.databinding.ActivityFillExtrusionBinding
 class MainActivity : AppCompatActivity() {
     var mapView: MapView? = null
@@ -80,19 +83,25 @@ class MainActivity : AppCompatActivity() {
         bearing = 10f
     }
     private val destination:Point = Point.fromLngLat(-122.4106, 37.7676)
-    public var queue:CircularQueue?=null
+    public var queue:PointQueue?=null
     public var lqueue:LineQueue?=null
     public var squeue:SrcQueue?=null
     var value:Int=2
-    var qsize:Int=20
+    var qsize:Int=1000
     var lineEnabled=true
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        val actionBar: ActionBar?
+        actionBar = supportActionBar
+        val colorDrawable = ColorDrawable(Color.parseColor("#6CA0DC"))
+        if (actionBar != null) {
+            actionBar.setBackgroundDrawable(colorDrawable)
+        }
 
         mapView=findViewById<View>(R.id.mapView) as MapView
         var floatact =findViewById<View>(R.id.fab_style_toggle)
-        queue =CircularQueue( qsize)
+        queue =PointQueue(qsize)
         lqueue = LineQueue(qsize-1)
         squeue= SrcQueue(qsize-1)
 
@@ -128,6 +137,9 @@ class MainActivity : AppCompatActivity() {
 
             if(queue!!.getSize()==queue!!.list.size)
             {
+                if(lqueue!!.getSize()==lqueue!!.list.size)
+                {Toast.makeText(this, "LQUEUE FULL!! (Delete Some)", Toast.LENGTH_SHORT).show()}
+
                 Toast.makeText(this, "QUEUE FULL!! (Delete Some)", Toast.LENGTH_SHORT).show()
                 Switch=0
                 true
@@ -135,7 +147,7 @@ class MainActivity : AppCompatActivity() {
             else{
             addNewPoint(point)
                 if(lineEnabled==true)
-                addNewline(point)
+                {addNewline(point)}
             }
             true
         }
@@ -154,8 +166,6 @@ class MainActivity : AppCompatActivity() {
                 var ss:String=squeue!!.dequeue()
                 it.removeStyleLayer(sl)
                 it.removeStyleSource(ss)
-//                Toast.makeText(this, "dqueue from line $sl", Toast.LENGTH_SHORT).show()
-//                Toast.makeText(this, "dqueue from line $ss", Toast.LENGTH_SHORT).show()
                 queue!!.dequeue()
             }
         Switch=0
@@ -200,7 +210,6 @@ class MainActivity : AppCompatActivity() {
         strnum++
         Log.d("tag1", "addNewline entered2 ")
 //        Toast.makeText(this,"layer",Toast.LENGTH_SHORT).show()
-
         var point2:Point= queue!!.getPoint(queue!!.tail)
 
         var lyr:String=strl
@@ -213,7 +222,7 @@ class MainActivity : AppCompatActivity() {
             squeue!!.enqueue(strs)
             queue!!.enqueue(point1)
             routeCoordinates.add(point1)
-            routeCoordinates.add( Point.fromLngLat(point2.longitude()-0.0001,point2.latitude()-0.0001))
+            routeCoordinates.add(Point.fromLngLat(point2.longitude()-0.0001,point2.latitude()-0.0001))
 
             sor=squeue!!.getPoint(squeue!!.tail)
             lyr=lqueue!!.getPoint(lqueue!!.tail)
@@ -224,7 +233,6 @@ class MainActivity : AppCompatActivity() {
 
             geoJsonSource.feature(feature)
             it.addSource(geoJsonSource)
-//            Toast.makeText(this, "clor $clrx layer ${src[s]}&  &${lyrid[s]}", Toast.LENGTH_SHORT).show()
         }
 //        var clr2=clr[s]
         mapView?.getMapboxMap()?.getStyle {
@@ -239,8 +247,7 @@ class MainActivity : AppCompatActivity() {
             }
             )
             x++
-            s++
-//            Toast.makeText(this, "Qsize ${queue!!.getSize()}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Qsize ${queue!!.getSize()}", Toast.LENGTH_SHORT).show()
             Switch=0;
         }
 
@@ -253,9 +260,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     //ADDS THE ANNOTATION ON USER'S CLICK , AT THE CLICKED LOCATION
-    var pntAnnoList = ArrayList<PointAnnotation>()
+
+    var pntAnnoList:Array<PointAnnotation>? = null
     var viewPntAnnoList =ArrayList<View>()
     var pointList=ArrayList<Point>()
+//    var tagList
     fun addNewPoint(point:Point)
     {
         pointList.add(point)
@@ -271,6 +280,8 @@ class MainActivity : AppCompatActivity() {
             .withIconImage(bitmap!!)
         pointAnnotation = pointAnnotationManager?.create(pointAnnotationOptions)
 
+        pntAnnoList!![currentPos]= pointAnnotation!!
+
         viewAnnotationManager = mapView!!.viewAnnotationManager
         var viewAnnotation:View = viewAnnotationManager.addViewAnnotation(
             resId = R.layout.view_annot_layout,
@@ -284,8 +295,68 @@ class MainActivity : AppCompatActivity() {
         viewPntAnnoList.add(viewAnnotation)
         var txt1: TextView? = viewAnnotation.findViewById<View>(R.id.annotation1) as TextView
         var txt2: TextView? = viewAnnotation.findViewById<View>(R.id.annotation2) as TextView
+        var button:Button? = viewAnnotation.findViewById<Button>(R.id.button) as Button
         txt1?.setText("long ::${String.format("%.4f", point.longitude())}")
         txt2?.setText("lat :: ${String.format("%.4f", point.latitude())}")
+//        button?.setTag(55,"currentPos")
+        button?.setOnClickListener{view->
+
+            //HANDLE THE ANNOTATION TRAVERSAL AND ANNOTATION DELETION
+            Toast.makeText(this,"flag ${currentPos}",Toast.LENGTH_SHORT).show()
+//
+            val pointAnnotationx = pntAnnoList?.get(currentPos)
+            if (pointAnnotationx != null) {
+                pointAnnotationManager!!.delete(pointAnnotationx)
+            }
+            var viewPntAnnoListx =ArrayList<View>()
+            var pointListx=ArrayList<Point>()
+            var size =pointList.size
+            if(currentPos!=size-1) {
+
+                for(i in 0..currentPos-1)
+                {
+                    viewPntAnnoListx.add(viewPntAnnoList.get(i))
+                    pointListx.add(pointList.get(i))
+                }
+                for (i in currentPos..(size - 2)) {
+                    viewPntAnnoListx.add(viewPntAnnoList.get(i+1))
+                    pointListx.add(pointList.get(i+1))
+                }
+                viewPntAnnoList=viewPntAnnoListx
+                pointList=pointListx
+                currentPos--
+            }
+            else if(currentPos==0 && size==1)
+            {
+                viewPntAnnoList=viewPntAnnoListx
+                pointList=pointListx
+                currentPos=-1
+            }
+            else if(currentPos==0&& size>1)
+            {
+                for (i in currentPos..(size - 2)) {
+                    viewPntAnnoListx.add(viewPntAnnoList.get(i+1))
+                    pointListx.add(pointList.get(i+1))
+                }
+                viewPntAnnoList=viewPntAnnoListx
+                pointList=pointListx
+                currentPos==0
+            }
+            else
+            {
+                for(i in 0..currentPos-1)
+                {
+                    viewPntAnnoListx.add(viewPntAnnoList.get(i))
+                    pointListx.add(pointList.get(i))
+                }
+                viewPntAnnoList=viewPntAnnoListx
+                pointList=pointListx
+                currentPos--
+            }
+            if(currentPos!=-1){
+            viewPntAnnoListx.get(currentPos).visibility=View.VISIBLE
+            moveCamera(pointListx.get(currentPos))}
+        }
     }
 
     //TRAVERSING THE ANNOTATIONS
@@ -320,7 +391,7 @@ class MainActivity : AppCompatActivity() {
     //ADDING ANNOTATION ON START
     fun managingOnPointAnnotation()
     {
-//        Log.d("bug", "managing on point annotation")
+        // Log.d("bug", "managing on point annotation")
         var bitmap = convertDrawableToBitmap(AppCompatResources.getDrawable(this@MainActivity, R.drawable.marker))
 
         var jsonA = JsonObject();
@@ -330,12 +401,12 @@ class MainActivity : AppCompatActivity() {
             .withData(jsonA.get("anon"))
             .withIconImage(bitmap!!)
 
-        pointAnnotationManager?.create(pointAnnotationOptions)
-
+        pointAnnotation=pointAnnotationManager?.create(pointAnnotationOptions)
+        pntAnnoList = Array(1000,{init: Int -> pointAnnotation!!})
         //CLICK LISTENER ON THE ANNOTATION
         pointAnnotationManager?.addClickListener(OnPointAnnotationClickListener {annotation:PointAnnotation ->
             onMarkerClick(annotation)
-            Toast.makeText(this, "ANNOTAION CLICKED !!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "ANNOTATION CLICKED !!", Toast.LENGTH_SHORT).show()
             true
         })
     }
@@ -717,17 +788,33 @@ class MainActivity : AppCompatActivity() {
         editor.apply()
         return super.onOptionsItemSelected(item)
     }
-
-    fun globe(view:View)
+     var flagx=0
+    fun horizontalView(view:View) {
+        if (flagx == 0) {
+            var point = mapboxMap?.cameraState?.center
+            mapView!!.getMapboxMap().setCamera(
+                CameraOptions.Builder()
+                    .center(point)
+                    .zoom(12.0)
+                    .pitch(45.0)
+                    .build()
+            )
+            flagx=1
+        } else if(flagx==1)
+        {
+            var point = mapboxMap?.cameraState?.center
+            mapView!!.getMapboxMap().setCamera(
+                CameraOptions.Builder()
+                    .center(point)
+                    .zoom(12.0)
+                    .pitch(0.0)
+                    .build())
+            flagx=0
+        }
+    }
+    fun globe(view: View)
     {
-       var point = mapboxMap?.cameraState?.center
-        mapView!!.getMapboxMap().setCamera(
-            CameraOptions.Builder()
-                .center(point)
-                .zoom(12.0)
-                .pitch(45.0)
-                .build()
-        )
+        mapboxMap?.apply { setMapProjection(MapProjection.Globe)}
     }
 }
 

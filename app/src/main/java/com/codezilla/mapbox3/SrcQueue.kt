@@ -5,19 +5,21 @@ class SrcQueue(totalSize:Int) {
     public val list:Array<String> = Array(totalSize,{ i: Int -> "null" })
     public var head = -1
     public var tail = -1
-    fun isFull() = (tail + 1) % list.size == head
-    fun isEmpty() = head == -1
+    fun isFull() = tail == list.size-1
+    fun isEmpty() : Boolean{
+        if(head == -1)
+        {return true}
+        return false
+    }
 
     fun enqueue(value: String){
         if (isFull()){
             return
         }
-        if(head==-1)head=0
-        tail = (tail+1) % list.size
+        if(head==-1){head=0}
+        tail=tail+1
         list[tail] = value
-
     }
-
     fun dequeue():String{
         var a:String = ""
         if(head==-1)
@@ -28,7 +30,7 @@ class SrcQueue(totalSize:Int) {
             tail=-1
         }
         else{//            a = list[head]
-            head = (head +1) % list.size
+            head=head+1
         }
         return a
     }
@@ -39,14 +41,13 @@ class SrcQueue(totalSize:Int) {
     fun getSize():Int
     {
         var ptr:Int=head
-        var count:Int=1
+        var count:Int=0
         if(head==-1)
             return 0
         if(head==tail && head!=-1)
             return 1
-        while(ptr != tail)
+        while(ptr != tail+1)
         {
-            ptr = ptr % list.size
             count++
             ptr++
         }
